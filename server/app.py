@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import platform
 import struct
@@ -25,6 +26,7 @@ app = FastAPI(title="Termux VC ARM64 Server", version="0.1.0")
 
 PACKET = struct.Struct("<4sIIHH")
 MAGIC = b"TVC1"
+logger = logging.getLogger("termux_vc.server")
 
 
 @lru_cache(maxsize=3)
@@ -183,6 +185,7 @@ async def audio_ws(ws: WebSocket):
     except WebSocketDisconnect:
         return
     except Exception as e:
+        logger.exception("WebSocket voice session failed")
         try:
             await ws.send_text(json.dumps({"type": "error", "message": str(e)}))
         finally:
