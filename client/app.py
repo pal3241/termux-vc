@@ -464,6 +464,27 @@ class TermuxVCApp(tk.Tk):
             protect=self.protect.get(),
             sid=self.sid.get(),
         )
+        try:
+            sd.check_input_settings(
+                device=in_dev,
+                channels=1,
+                dtype="float32",
+                samplerate=self.sample_rate.get(),
+            )
+            sd.check_output_settings(
+                device=out_dev,
+                channels=1,
+                dtype="float32",
+                samplerate=self.sample_rate.get(),
+            )
+        except Exception as exc:
+            messagebox.showerror(
+                "Audio device error",
+                f"Audio preflight failed:\n\n{exc}\n\n"
+                "Try another microphone/output device or use 48000 Hz compatible devices.",
+            )
+            return
+
         self.engine = AudioEngine(cfg, status=self.audio_status)
         self.engine.start()
         self.start_btn.configure(state="disabled")
@@ -497,10 +518,16 @@ class TermuxVCApp(tk.Tk):
                         f"queue {status.get('queue', 0)}"
                     )
             elif state == "error":
+                error_text = status.get("error", "unknown error")
                 self.status_var.set("Error")
-                self.log(status.get("error", "unknown error"))
+                self.latency_var.set(f"ERROR: {error_text}")
+                self.log(error_text)
                 self.start_btn.configure(state="normal")
                 self.stop_btn.configure(state="disabled")
+                messagebox.showerror(
+                    "Voice changer error",
+                    error_text,
+                )
             else:
                 self.status_var.set(state or "...")
 
