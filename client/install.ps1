@@ -36,7 +36,7 @@ Invoke-BasePython @("-m", "venv", ".venv")
 Write-Host "[2/5] Converter environment"
 Invoke-BasePython @("-m", "venv", ".converter-venv")
 & .\.converter-venv\Scripts\python.exe -m pip install -U pip setuptools wheel
-& .\.converter-venv\Scripts\python.exe -m pip install "torch>=2.4" "onnx>=1.17" "onnxscript>=0.1" "numpy>=1.26" "scipy>=1.14" "librosa>=0.10"
+& .\.converter-venv\Scripts\python.exe -m pip install "torch>=2.4,<2.6" "onnx>=1.17" "onnxscript>=0.1" "numpy>=1.26" "scipy>=1.14" "librosa>=0.10"
 
 Write-Host "[3/5] RVC ONNX exporter"
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
