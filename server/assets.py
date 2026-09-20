@@ -4,10 +4,21 @@ import argparse
 from pathlib import Path
 import requests
 
+# v2 defaults to INT8 ContentVec/RMVPE: much smaller base models for CPU ARM64.
+# Files are saved under stable local names expected by runtime.py.
 ASSETS = {
-    "v2": ("vec-768-layer-12.onnx", "https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/resolve/main/vec-768-layer-12.onnx?download=true"),
-    "v1": ("vec-256-layer-9.onnx", "https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/resolve/main/vec-256-layer-9.onnx?download=true"),
-    "rmvpe": ("RMVPE.onnx", "https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/resolve/main/RMVPE.onnx?download=true"),
+    "v2": (
+        "vec-768-layer-12.onnx",
+        "https://huggingface.co/TigreGotico/voiceclonnx-rvc/resolve/main/contentvec_768l12_q8.onnx?download=true",
+    ),
+    "v1": (
+        "vec-256-layer-9.onnx",
+        "https://huggingface.co/NaruseMioShirakana/MoeSS-SUBModel/resolve/main/vec-256-layer-9.onnx?download=true",
+    ),
+    "rmvpe": (
+        "RMVPE.onnx",
+        "https://huggingface.co/TigreGotico/voiceclonnx-rvc/resolve/main/rmvpe_q8.onnx?download=true",
+    ),
 }
 
 
@@ -18,23 +29,32 @@ def download(url: str, dest: Path):
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(dest.suffix + ".part")
     print(f"[download] {dest.name}")
-    with requests.get(url, stream=True, timeout=60) as r:
-        r.raise_for_status()
-        total = int(r.headers.get("content-length", 0))
+    with requests.get(url, stream=True, timeout=60) as response:
+        response.raise_for_status()
+        total = int(response.headers.get("content-length", 0))
         done = 0
-        with tmp.open("wb") as f:
-            for chunk in r.iter_content(1024 * 1024):
+        with tmp.open("wb") as handle:
+            for chunk in response.iter_content(1024 * 1024):
                 if not chunk:
                     continue
-                f.write(chunk)
+                handle.write(chunk)
                 done += len(chunk)
                 if total:
-                    print(f"\r  {done/1024/1024:.1f}/{total/1024/1024:.1f} MiB", end="", flush=True)
+                    print(
+                        f"\r  {done / 1024 / 1024:.1f}/"
+                        f"{total / 1024 / 1024:.1f} MiB",
+                        end="",
+                        flush=True,
+                    )
     print()
     tmp.replace(dest)
 
 
-def ensure(root: Path, versions=("v2",), include_rmvpe=True):
+def ensure(
+    root: Path,
+    versions=("v2",),
+    include_rmvpe=True,
+):
     keys = list(versions) + (["rmvpe"] if include_rmvpe else [])
     for key in keys:
         filename, url = ASSETS[key]
@@ -42,11 +62,16 @@ def ensure(root: Path, versions=("v2",), include_rmvpe=True):
 
 
 def main():
-    p = argparse.ArgumentParser()
-    p.add_argument("--dir", type=Path, default=Path(__file__).resolve().parent / "assets")
-    p.add_argument("--v1", action="store_true")
-    p.add_argument("--v2", action="store_true")
-    args = p.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--dir",
+        type=Path,
+        default=Path(__file__).resolve().parent / "assets",
+    )
+    parser.add_argument("--v1", action="store_true")
+    parser.add_argument("--v2", action="store_true")
+    args = parser.parse_args()
+
     versions = []
     if args.v1:
         versions.append("v1")
