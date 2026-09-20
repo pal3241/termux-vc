@@ -412,12 +412,13 @@ class TermuxVCApp(tk.Tk):
                     lambda: self.model_var.set(model_name),
                 )
             except Exception as exc:
-                self.log(f"Import failed: {exc}")
+                error_text = str(exc)
+                self.log(f"Import failed: {error_text}")
                 self.after(
                     0,
-                    lambda: messagebox.showerror(
+                    lambda msg=error_text: messagebox.showerror(
                         "Model import failed",
-                        str(exc),
+                        msg,
                     ),
                 )
 
