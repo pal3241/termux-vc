@@ -1,0 +1,17 @@
+.venv/
+.converter-venv/
+.toolchain/
+__pycache__/
+*.pyc
+*.pyo
+*.part
+client/dist/
+client/build/
+dist/
+build/
+*.spec
+server/assets/*.onnx
+server/models/*
+!server/models/.gitkeep
+.DS_Store
+Thumbs.db
