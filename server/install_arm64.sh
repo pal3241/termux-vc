@@ -18,6 +18,13 @@ python -m pip install -U pip setuptools wheel
 python -m pip install -r requirements.txt
 
 echo
+echo "Trying optional FAISS support for .index retrieval..."
+if ! python -m pip install "faiss-cpu>=1.9"; then
+  echo "WARNING: faiss-cpu wheel is unavailable for this environment."
+  echo "         Voice conversion still works; set index rate to 0."
+fi
+
+echo
 echo "Downloading RVC v2 runtime assets (ContentVec + RMVPE)."
 python assets.py --v2
 
