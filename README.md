@@ -29,24 +29,35 @@ VB-CABLE / headphones / OBS / Discord
 
 ## 1. Android / Termux / Ubuntu ARM64
 
-In Termux:
+From native Termux, the easiest path is:
+
+```bash
+cd ~/termux-vc
+git pull
+bash termux_bootstrap.sh
+```
+
+The bootstrap installs/checks Ubuntu PRoot, clones or updates `termux-vc` inside Ubuntu, and runs the ARM64 installer there.
+
+Manual equivalent:
 
 ```bash
 pkg update
 pkg install -y proot-distro git
-proot-distro install ubuntu
+proot-distro install ubuntu   # only if Ubuntu is not installed
 proot-distro login ubuntu
 ```
 
-Inside Ubuntu:
+Then inside Ubuntu:
 
 ```bash
-apt update
-apt install -y git
-git clone https://github.com/pal3241/termux-vc.git
+cd ~
+git clone https://github.com/pal3241/termux-vc.git   # first time only
 cd termux-vc/server
 bash install_arm64.sh
 ```
+
+Do **not** run `server/install_arm64.sh` in native Termux. Native Termux uses Android/Bionic and does not provide the Ubuntu package set or the glibc ONNX Runtime environment expected by this server.
 
 `install_arm64.sh` creates `server/.venv`, installs the ARM64 server dependencies, tries to install optional FAISS support, and downloads **INT8 RVC v2 ContentVec + RMVPE ONNX assets** for a lighter ARM64 CPU runtime. Runtime weights are intentionally not committed to Git.
 
