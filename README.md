@@ -48,7 +48,7 @@ cd termux-vc/server
 bash install_arm64.sh
 ```
 
-`install_arm64.sh` creates `server/.venv`, installs the ARM64 server dependencies, tries to install optional FAISS support, and downloads the **RVC v2 ContentVec + RMVPE ONNX assets**. Runtime weights are intentionally not committed to Git.
+`install_arm64.sh` creates `server/.venv`, installs the ARM64 server dependencies, tries to install optional FAISS support, and downloads **INT8 RVC v2 ContentVec + RMVPE ONNX assets** for a lighter ARM64 CPU runtime. Runtime weights are intentionally not committed to Git.
 
 Start the server:
 
@@ -248,7 +248,7 @@ The v0.1 EXE is not yet a completely self-contained installer: automatic first-t
 - It is not a byte-for-byte W-Okada clone. It is a dedicated PC ↔ ARM64 RVC system with a similar workflow.
 - ARM64 CPU inference may be too slow for tiny buffers. USB transport is normally not the main bottleneck; neural inference is.
 - The current streaming backend re-runs inference over a rolling context for quality/stability. A split-graph/cached backend can reduce repeated work in a later version.
-- Runtime ContentVec/RMVPE weights are downloaded during server setup.
+- Runtime ContentVec/RMVPE weights are downloaded during server setup; v2 defaults to the smaller INT8 variants.
 - `.index` retrieval depends on FAISS availability on ARM64.
 - This first commit is syntax-checked, but actual latency and model compatibility must still be benchmarked on the target phone.
 
